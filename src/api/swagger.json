@@ -1,0 +1,960 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Game API",
+    "description": "API для игры с раундами и подсчетом очков",
+    "version": "1.0.0"
+  },
+  "components": {
+    "securitySchemes": {
+      "cookieAuth": { "type": "apiKey", "in": "cookie", "name": "token" },
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {}
+  },
+  "paths": {
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "description": "Login or register user",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 32
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 64
+                  }
+                },
+                "required": ["username", "password"]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "username": {
+                      "type": "string",
+                      "minLength": 3,
+                      "maxLength": 32
+                    },
+                    "role": {
+                      "type": "string",
+                      "enum": ["SURVIVOR", "NIKITA", "ADMIN"]
+                    },
+                    "token": { "type": "string" }
+                  },
+                  "required": ["username", "role", "token"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Bad Request",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error details",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Unauthorized",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error details",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Forbidden",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error details",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Resource not found response",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error details",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Internal Server Error",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error details",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "tags": ["Auth"],
+        "description": "Get current authenticated user",
+        "security": [{ "cookieAuth": [] }, { "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "username": {
+                      "type": "string",
+                      "minLength": 3,
+                      "maxLength": 32
+                    },
+                    "role": {
+                      "type": "string",
+                      "enum": ["SURVIVOR", "NIKITA", "ADMIN"]
+                    }
+                  },
+                  "required": ["username", "role"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Bad Request",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error details",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Unauthorized",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error details",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Forbidden",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error details",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Resource not found response",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error details",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Internal Server Error",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error details",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "tags": ["Auth"],
+        "description": "Logout user",
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "success": { "type": "boolean" } },
+                  "required": ["success"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/rounds": {
+      "post": {
+        "tags": ["Rounds"],
+        "description": "Create a new round (Admin only)",
+        "security": [{ "cookieAuth": [] }, { "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "startTime": { "type": "string", "format": "date-time" },
+                    "endTime": { "type": "string", "format": "date-time" },
+                    "totalScore": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "createdAt": { "type": "string", "format": "date-time" }
+                  },
+                  "required": [
+                    "id",
+                    "startTime",
+                    "endTime",
+                    "totalScore",
+                    "createdAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Bad Request",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error details",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Unauthorized",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error details",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Forbidden",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error details",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Resource not found response",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error details",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Internal Server Error",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error details",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": ["Rounds"],
+        "description": "Get all rounds with pagination",
+        "parameters": [
+          {
+            "schema": { "type": "string" },
+            "in": "query",
+            "name": "cursor",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 10,
+              "type": "number",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["active", "cooldown", "finished"]
+            },
+            "in": "query",
+            "name": "status",
+            "required": false
+          }
+        ],
+        "security": [{ "cookieAuth": [] }, { "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "startTime": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "endTime": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "totalScore": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "startTime",
+                          "endTime",
+                          "totalScore",
+                          "createdAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "limit": { "type": "number" },
+                        "nextCursor": { "nullable": true, "type": "string" },
+                        "hasMore": { "type": "boolean" }
+                      },
+                      "required": ["limit", "nextCursor", "hasMore"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["data", "pagination"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Bad Request",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error details",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Unauthorized",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error details",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Forbidden",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error details",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Resource not found response",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error details",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Internal Server Error",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error details",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/rounds/{id}": {
+      "get": {
+        "tags": ["Rounds"],
+        "description": "Get round details",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [{ "cookieAuth": [] }, { "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "round": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string" },
+                        "startTime": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "endTime": { "type": "string", "format": "date-time" },
+                        "totalScore": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "createdAt": { "type": "string", "format": "date-time" }
+                      },
+                      "required": [
+                        "id",
+                        "startTime",
+                        "endTime",
+                        "totalScore",
+                        "createdAt"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "topStats": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "taps": { "type": "number", "minimum": 0 },
+                          "score": { "type": "number", "minimum": 0 },
+                          "user": {
+                            "type": "object",
+                            "properties": { "username": { "type": "string" } },
+                            "required": ["username"],
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": ["taps", "score", "user"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "myStats": {
+                      "type": "object",
+                      "properties": {
+                        "taps": { "type": "number", "minimum": 0 },
+                        "score": { "type": "number", "minimum": 0 }
+                      },
+                      "required": ["taps", "score"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["round", "topStats", "myStats"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Bad Request",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error details",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Unauthorized",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error details",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Forbidden",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error details",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Resource not found response",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error details",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Internal Server Error",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error details",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/rounds/{id}/tap": {
+      "post": {
+        "tags": ["Rounds"],
+        "description": "Register a tap in the round",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [{ "cookieAuth": [] }, { "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "taps": { "type": "number" },
+                    "score": { "type": "number" }
+                  },
+                  "required": ["taps", "score"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Bad Request",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error details",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Unauthorized",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error details",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Forbidden",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error details",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Resource not found response",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error details",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Internal Server Error",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Error details",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["message"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "http://v2991160.hosted-by-vdsina.ru",
+      "description": "API Server"
+    }
+  ]
+}
